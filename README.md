@@ -8,6 +8,8 @@ From time to time I observe freelance field for changes and bring more functiona
 to my project. <br>
 
 You can use open source and don't pay damn programmers on freelance. When I'll 
-have success there, it cut freelancers' payments off. I think, web programming it's 
-the easiest field of programming. And you're programmer who knows several languages, high
-abstructed tools and doesn't even heard of C, U suck. ha-ha. Fuck it.
+have success there, I cut freelancers' payments off. Web programming it's the
+easiest (weakest) field of programming. And if you're programmer who knows several languages, 
+high abstructed tools and doesn't even heard of C, U suck. ha-ha. Fuck it. <br>
+
+I'm gonna make money using these sheet. So let's how good at it I'll be.

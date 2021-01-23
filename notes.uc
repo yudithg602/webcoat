@@ -4,7 +4,7 @@ langs:
 	php, js, python
 
 framworks: 
-	Django, vue.js, node.js, Wordpress, 1C, bitrix24 
+	Django, vue.js, lavarel, node.js, Wordpress, 1C, bitrix24
 
 orders:
 	bot, crawler, website

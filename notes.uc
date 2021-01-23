@@ -1,10 +1,12 @@
-The most popular web tools:
-	langs     : php, js, python
-	Framworks : Django, vue.js, node.js, Wordpress, 1C, bitrix24 
+WEB devoted project.
 
-Have to master them.
+langs:
+	php, js, python
+
+framworks: 
+	Django, vue.js, node.js, Wordpress, 1C, bitrix24 
 
 
-
+Have to master them to take this business.
 
 

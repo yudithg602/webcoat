@@ -1,0 +1,12 @@
+#!/bin/bash
+clear
+
+
+lazypush()
+{
+	git add .
+	git commit -m '[*] lazy commit'
+	git push
+}
+
+lazypush

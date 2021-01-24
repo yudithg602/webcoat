@@ -1,6 +1,20 @@
 #!/bin/bash
 clear
 
+burnlogs()
+{
+	REPO=webcoat
+	test -e .git || rm -rf .git
+	git init
+	echo "make remote"
+	git remote add $REPO https://github.com/qcockroach
+	echo "push"
+	git push --set-upstream	$REPO master
+}
+
+#git remote add webcoat https://github.com/qcockroach
+#git push --set-upstream	webcoat master
+
 
 lazypush()
 {
@@ -10,3 +24,4 @@ lazypush()
 }
 
 lazypush
+

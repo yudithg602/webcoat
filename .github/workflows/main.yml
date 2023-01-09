@@ -16,6 +16,6 @@ jobs:
         with:
           project_name: githubactionintegrationyudith
           cx_tenant: cx_pm_ast_ori_james_brotsos
-          base_uri: https://ast.checkmarx.net/
+          base_uri: https://ast.checkmarx.net
           cx_client_id: ${{ secrets.CLIENT_ID }}
           cx_client_secret: ${{ secrets.SECRET }}

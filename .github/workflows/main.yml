@@ -22,6 +22,4 @@ jobs:
           #additional_params: --apikey ${{ secrets.apisecret }}
           #additional_params: --debug --filter status=new --threshold sast-high=1 --threshold kics-high=1 --threshold sca-high=1
           sast: presetName:'Checkmarx Default'
-        languageMode: 'multi'
-        filter: '!*.java,!*.cpp'
-        engineVerbose: 'true'
+    

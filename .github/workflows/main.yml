@@ -20,7 +20,7 @@ jobs:
           #cx_client_id: ${{ secrets.CLIENT_ID }}
           #cx_client_secret: ${{ secrets.SECRET }}
           #additional_params: --apikey ${{ secrets.apisecret }}
-          additional_params: --apikey ${{ secrets.apisecret }} --debug --filter !**/**,Web/**  
+          additional_params: --apikey ${{ secrets.apisecret }} --debug --file-filter !**/**,Web/**  
           sast: presetName:'Checkmarx Default'
           #additional_params: --report-format sarif
     

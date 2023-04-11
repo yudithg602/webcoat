@@ -20,7 +20,7 @@ jobs:
           cx_client_id: ${{ secrets.CLIENT_ID }}
           cx_client_secret: ${{ secrets.SECRET }}
           #additional_params: --apikey ${{ secrets.apisecret }}
-          #additional_params: --debug --filter status=new --threshold sast-high=1 --threshold kics-high=1 --threshold sca-high=1
+          additional_params: --apikey ${{ secrets.apisecret }} --debug --filter status=new --threshold sast-high=1 --threshold kics-high=1 --threshold sca-high=1
           sast: presetName:'Checkmarx Default'
-          additional_params: --report-format sarif
+          #additional_params: --report-format sarif
     

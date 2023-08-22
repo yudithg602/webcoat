@@ -15,7 +15,7 @@ jobs:
       - name: Checkmarx One CLI Action
         uses: checkmarx/ast-github-action@main #Github Action version
         with:
-          project_name: githubactionintegrationyudith
+          project_name: PRdecoration
           cx_tenant: cx_pm_ast_ori_james_brotsos_tenant
           base_uri: https://ast.checkmarx.net
           cx_client_id: ${{ secrets.CLIENT_ID }}

@@ -22,4 +22,4 @@ jobs:
           cx_client_secret: ${{ secrets.SECRET }}
           #additional_params: --apikey ${{ secrets.apisecret2 }}
           additional_params: --scan-types sast --debug
-          sast: presetName:'Checkmarx Default'
+          #sast: presetName:'Checkmarx Default'

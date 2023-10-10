@@ -1,0 +1,64 @@
+Func<CSharpGraph, string> GetTypeName = ((CSharpGraph graph) => {
+	if(graph is BooleanLiteral) return "boolean";
+	if(graph is CharLiteral) return "char";
+	if(graph is IntegerLiteral) return "int";
+	if(graph is RealLiteral) return "real";
+	if(graph is StringLiteral) return "string";
+	if(graph is Reference) return (graph as UnknownReference)?.ShortName ?? string.Empty;
+	return "object";
+	}); 
+
+// TODOs:
+// - Method params that are method invoke expressions are not handled, and marked as "object"
+CxList allParams = All.FindByType(typeof(Param));
+CxList methods = All.FindByType(typeof(MethodInvokeExpr));
+CxList ctors = All.FindByType(typeof(ObjectCreateExpr));
+CxList unknownReferences = All.FindByType(typeof(UnknownReference));
+CxList typeRefs = All.FindByType(typeof(TypeRef));
+
+// For a ctor, calling FindDefinition() will always return 0 results. Here, 
+// the ctors without a definition are added to the methods list
+foreach(CxList ctor in ctors) {
+	CxList ctorTypeRefs = typeRefs.FindByFathers(ctor);
+	CxList foundDef = ctorTypeRefs.FindAllReferences(unknownReferences.FindDefinition(ctorTypeRefs));
+	if (foundDef.Count > 0) {
+		methods.Add(ctor);	
+	}
+}
+
+Comment rootComment = new Comment();
+foreach(CxList method in methods){
+    try{
+	    if(unknownReferences.FindDefinition(method).Count > 0)
+		    continue;
+	    
+	    Expression methObject = method.TryGetCSharpGraph<Expression>();
+	    LinePragma lp = methObject.LinePragma;
+	    string methodName = method.GetName();
+
+	    CxList methodParams = allParams.GetParameters(method);
+	    
+	    var elements = methodParams.CxSelectDomProperty<Param>(_ => _.Value)
+		    .CxSelectElementValue<CSharpGraph,string>(GetTypeName);
+	    
+	    string paramsStr = "||(" + string.Join("||,", elements) + "||)";
+	    
+	    bool foundSignature = false;
+	    string objectName = "";
+	    if (methObject is ObjectCreateExpr) {
+		    foundSignature = true;
+		    // In case of ctor, method and class names match
+		    objectName = methodName;
+	    }
+			    
+	    if (objectName.StartsWith("CxOrphanClass_")) {
+		    objectName = "object";
+	    }
+			    
+	    string resolvedName = (foundSignature ? objectName + "||." : "") + methodName + paramsStr;
+	    
+	    Comment comment = new Comment(methodName, methodName, rootComment, lp);
+	    comment.ResolveShortName(resolvedName);
+	    result.Add(comment.NodeId, comment);
+    }catch(Exception e){}
+}

@@ -1,0 +1,171 @@
+Func<string, string> GetDirname = (filePath) => 
+{
+	List<string> list = filePath.Split(new[] {'/'}, StringSplitOptions.None).ToList();
+	list.RemoveAt(list.Count - 1);
+	filePath = string.Join("/", list.ToArray());
+	return filePath;
+};
+			    
+Func<string, string> GetFilePath = (tokenPos) => 
+{
+	var index = tokenPos.IndexOf("Line: ");
+	return tokenPos.Substring(6, index).Trim();
+};
+
+Func<HashSet<string>> GetAllFiles = () => 
+{
+	HashSet<string> files = new HashSet<string>();
+	foreach(CxList node in All){
+		CSharpGraph g = node.TryGetCSharpGraph<CSharpGraph>();
+		files.Add(GetFilePath(g.TokenPos));
+	}
+	
+	return files;
+};
+
+Func<string, bool> IsBuiltInModule = (name) => 
+{		
+	List<string > builtinModules = new List<string> {"__future__","__main__","_dummy_thread","_thread","abc","aifc","argparse","array","ast","asynchat","asyncio","asyncore","atexit","audioop","base64","bdb","binascii","binhex","bisect","builtins","bz2","calendar","cgi","cgitb","chunk","cmath","cmd","code","codecs","codeop","collections","collections.abc","colorsys","compileall","concurrent","concurrent.futures","configparser","contextlib","contextvars","copy","copyreg","cProfile","crypt","csv","ctypes","curses","curses.ascii","curses.panel","curses.textpad","dataclasses","datetime","dbm","dbm.dumb","dbm.gnu","dbm.ndbm","decimal","difflib","dis","distutils","distutils.archive_util","distutils.bcppcompiler","distutils.ccompiler","distutils.cmd","distutils.command","distutils.command.bdist","distutils.command.bdist_dumb","distutils.command.bdist_msi","distutils.command.bdist_packager","distutils.command.bdist_rpm","distutils.command.bdist_wininst","distutils.command.build","distutils.command.build_clib","distutils.command.build_ext","distutils.command.build_py","distutils.command.build_scripts","distutils.command.check","distutils.command.clean","distutils.command.config","distutils.command.install","distutils.command.install_data","distutils.command.install_headers","distutils.command.install_lib","distutils.command.install_scripts","distutils.command.register","distutils.command.sdist","distutils.core","distutils.cygwinccompiler","distutils.debug","distutils.dep_util","distutils.dir_util","distutils.dist","distutils.errors","distutils.extension","distutils.fancy_getopt","distutils.file_util","distutils.filelist","distutils.log","distutils.msvccompiler","distutils.spawn","distutils.sysconfig","distutils.text_file","distutils.unixccompiler","distutils.util","distutils.version","doctest","dummy_threading","email","email.charset","email.contentmanager","email.encoders","email.errors","email.generator","email.header","email.headerregistry","email.iterators","email.message","email.mime","email.parser","email.policy","email.utils","encodings","encodings.idna","encodings.mbcs","encodings.utf_8_sig","ensurepip","enum","errno","faulthandler","fcntl","filecmp","fileinput","fnmatch","formatter","fractions","ftplib","functools","gc","getopt","getpass","gettext","glob","grp","gzip","hashlib","heapq","hmac","html","html.entities","html.parser","http","http.client","http.cookiejar","http.cookies","http.server","imaplib","imghdr","imp","importlib","importlib.abc","importlib.machinery","importlib.resources","importlib.util","inspect","io","ipaddress","itertools","json","json.tool","keyword","lib2to3","linecache","locale","logging","logging.config","logging.handlers","lzma","mailbox","mailcap","marshal","math","mimetypes","mmap","modulefinder","msilib","msvcrt","multiprocessing","multiprocessing.connection","multiprocessing.dummy","multiprocessing.managers","multiprocessing.pool","multiprocessing.shared_memory","multiprocessing.sharedctypes","netrc","nis","nntplib","numbers","operator","optparse","os","os.path","ossaudiodev","parser","pathlib","pdb","pickle","pickletools","pipes","pkgutil","platform","plistlib","poplib","posix","pprint","profile","pstats","pty","pwd","py_compile","pyclbr","pydoc","queue","quopri","random","re","readline","reprlib","resource","rlcompleter","runpy","sched","secrets","select","selectors","shelve","shlex","shutil","signal","site","smtpd","smtplib","sndhdr","socket","socketserver","spwd","sqlite3","ssl","stat","statistics","string","stringprep","struct","subprocess","sunau","symbol","symtable","sys","sysconfig","syslog","tabnanny","tarfile","telnetlib","tempfile","termios","test","test.support","test.support.script_helper","textwrap","threading","time","timeit","tkinter","tkinter.scrolledtext","tkinter.tix","tkinter.ttk","token","tokenize","trace","traceback","tracemalloc","tty","turtle","turtledemo","types","typing","unicodedata","unittest","unittest.mock","urllib","urllib.error","urllib.parse","urllib.request","urllib.response","urllib.robotparser","uu","uuid","venv","warnings","wave","weakref","webbrowser","winreg","winsound","wsgiref","wsgiref.handlers","wsgiref.headers","wsgiref.simple_server","wsgiref.util","wsgiref.validate","xdrlib","xml","xml.dom","xml.dom.minidom","xml.dom.pulldom","xml.etree.ElementTree","xml.parsers.expat","xml.parsers.expat.errors","xml.parsers.expat.model","xml.sax","xml.sax.handler","xml.sax.saxutils","xml.sax.xmlreader","xmlrpc","xmlrpc.client","xmlrpc.server","zipapp","zipfile","zipimport","zlib"};
+	return builtinModules.Contains(name);
+};
+
+Func<string, string> ImportStringToPath = (import) => 
+{
+	string[] parts = import.Split(new[] {"."}, StringSplitOptions.None);
+	return string.Join("/", parts);
+};
+
+Func<string, string, HashSet<string>, bool> LocalPackageExists = (directory, import, uniqueFiles) => 
+{
+	var importPath = ImportStringToPath(import);
+	var dotPyFile = directory + "/" + importPath + ".py";
+	var initFilePath = directory + "/" + importPath + "/__init__.py";
+	
+	if (uniqueFiles.Contains(dotPyFile) || uniqueFiles.Contains(initFilePath))
+	{
+		return true;
+	}
+	
+	return false;
+};
+
+Func<CxList, Tuple<string[],string[]>> GetImportsNamesAndPaths = (allImports) => 
+{
+	HashSet<string> names = new HashSet<string>();
+	HashSet<string> paths = new HashSet<string>();
+	
+	foreach(CxList node in allImports){
+		Import import = node.TryGetCSharpGraph<Import>();
+		if (import == null)
+		{
+			continue;
+		}
+		if (import.Namespace == null || import.Namespace == "")
+		{
+			continue;
+		}
+	
+		names.Add(import.Namespace);
+		paths.Add(GetDirname(GetFilePath(import.TokenPos)));
+	}
+	
+	string[] uniqueImports = new string[names.Count];
+	names.CopyTo(uniqueImports);
+	
+	string[] uniquePaths = new string[paths.Count];
+	paths.CopyTo(uniquePaths);
+	
+	return Tuple.Create(uniqueImports, uniquePaths);
+};
+
+Func<string[], string[], HashSet<string>, string> FindOptimalRootDirectory = (directories, imports, uniqueFiles) => 
+{
+	int max = -1;
+	string optimalDirectory = null;
+	
+	foreach(String directory in directories)
+	{
+		int success = 0;
+	
+		foreach(string import in imports)
+		{
+			if (LocalPackageExists(directory, import, uniqueFiles))
+			{
+				success++;
+			}
+		}
+	
+		if (success > max)
+		{
+			optimalDirectory = directory;
+			max = success;
+		}
+	}
+	
+	return optimalDirectory;
+};
+
+Func<string, Comment, LinePragma, string, Comment> GenerateCommentNode = (importNs, rootComment, importLp, symbol) => 
+{
+	var comment = new Comment(importNs, importNs, rootComment, importLp);
+	comment.ResolveShortName(symbol);
+	return comment;
+};
+
+HashSet<string> uniqueFiles = GetAllFiles();
+CxList imports = All.FindByType<Import>();
+Tuple<String[], String[]> namesAndPaths = GetImportsNamesAndPaths(imports);
+
+String[] uniquePaths = namesAndPaths.Item2;
+String[] uniqueImports = namesAndPaths.Item1;
+
+var rootDirectory = FindOptimalRootDirectory(uniquePaths, uniqueImports, uniqueFiles);
+
+Comment rootComment = new Comment();
+
+foreach(CxList node in imports)
+{
+	try
+	{
+		Import import = node.TryGetCSharpGraph<Import>();
+		var directory = rootDirectory;
+		var importNamespace = node.CxSelectElementValues<Import,string>(_ => _.Namespace)?[0];
+		if (string.IsNullOrEmpty(importNamespace) || IsBuiltInModule(importNamespace))
+		{
+			continue;
+		}
+
+		if (importNamespace.IndexOf("./") == 0)
+		{
+			importNamespace = importNamespace.Substring(2);
+			directory = GetDirname(GetFilePath(import.TokenPos));
+		}
+
+		if (LocalPackageExists(directory, importNamespace, uniqueFiles))
+		{
+			continue;
+		}
+
+		var symbol = importNamespace;
+		var auxSymbols = node.CxSelectElementValues<Import,List<string>>(_ => _.Symbols)?[0];
+		
+		if(auxSymbols?.Count > 0)
+		{
+			foreach(var auxSymbol in auxSymbols)
+			{
+				var importNs = importNamespace;
+				importNs += "." + auxSymbol;
+				var comment = GenerateCommentNode(importNs, rootComment, import.LinePragma, auxSymbol);
+				result.Add(comment.NodeId, comment);
+			}
+		} 
+		else 
+		{
+			var comment = GenerateCommentNode(importNamespace, rootComment, import.LinePragma, symbol);
+			result.Add(comment.NodeId, comment);
+		}
+	}catch(Exception ex)
+	{
+		
+	}
+}
